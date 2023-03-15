@@ -17,3 +17,9 @@ macOS原生 Application
 当然还有很多还没做，例如管理apikey、新增会话...
 
 我只是先把代码推上来，后面会继续完善。
+
+给大家扔张截图先，我喜欢简洁的页面：
+
+<p align="center">
+  <img src="Assets/s1.png?raw=true" alt="MacGPT"/>
+</p>
