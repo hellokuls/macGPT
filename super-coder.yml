@@ -1,0 +1,22 @@
+output_dir: ''
+input_dir: ''
+strings:
+- outputs:
+  - templateName: r+text
+    output: Chat/Generated/R + Text.swift
+  inputs:
+  - Chat/Resource/en.lproj
+xcassets:
+- outputs:
+  - templateName: r+color
+    output: Chat/Generated/R + Color.swift
+  inputs:
+  - Chat/Color.xcassets
+colors: []
+coredata: []
+files: []
+fonts: []
+ib: []
+json: []
+plist: []
+yaml: []

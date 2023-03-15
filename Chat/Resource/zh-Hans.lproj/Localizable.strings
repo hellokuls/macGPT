@@ -1,0 +1,20 @@
+// API Key
+"api_key" = "API密钥";
+
+// 请先添加API Key
+"api_key_desc" = "请先添加API密钥";
+
+// 取消
+"cancel" = "取消";
+
+// 完成
+"done" = "完成";
+
+// 请输入问题
+"enter_your_question" = "请输入您的问题";
+
+// 加载中
+"loading" = "加载中";
+
+// 你的API Key
+"your_api_key" = "您的API密钥";
