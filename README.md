@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <p align="center">
   <img src="Assets/logo.png?raw=true" alt="MacChatGPT"/>
 </p>
@@ -54,3 +55,7 @@ We are more than happy to accept external contributions to the project in the fo
 ## License
 
 MacChatGPT is available under the MIT license. See the LICENSE file for more info.
+=======
+# macGPT
+打造一款ChatGPT for Mac客户端，不是嵌网页！
+>>>>>>> 325105bfa412f59b4d79c838f08efa4dd864ec18
