@@ -11,7 +11,7 @@ struct ChatView: View {
     @State private var showToast = false
     @State private var bindings: Set<AnyCancellable> = []
     @State var select: String? = ""
-    
+    @State private var inputText = ""
     var body: some View {
         
         NavigationView{
@@ -39,25 +39,34 @@ struct ChatView: View {
             }.padding([.top, .trailing], 10)
         }.navigationTitle(Text(select ?? ""))
         .navigationViewStyle(DoubleColumnNavigationViewStyle())
-        .alert(R.Text.yourApiKey, isPresented: $showAlert, actions: {
-
-            // Any view other than Button would be ignored
-            Button(R.Text.done, action: {
-                showAlert = false
-                viewModel.cacheAPIKey()
-            })
-            Button(R.Text.cancel, role: .cancel, action: {
-                showAlert = false
-            })
-        }){
-
-            Text(R.Text.apiKeyDesc)
-        }.toast(isPresenting: $showToast) {
+       .toast(isPresenting: $showToast) {
             AlertToast(displayMode: .hud, type: .error(Color.red), title: viewModel.chatErr.message)
         }.onAppear {
             bindToast()
+        }.alert(isPresented: $showAlert){
+            let alert = NSAlert()
+            alert.messageText = "MacGPT"
+            alert.informativeText = "请输入api_key"
+            alert.addButton(withTitle: "OK")
+            alert.addButton(withTitle: "Cancel")
+
+            let textField = NSTextField(frame: NSRect(x: 0, y: 0, width: 200, height: 24))
+            textField.lineBreakMode = .byClipping
+            alert.accessoryView = textField
+
+            let result = alert.runModal()
+            if result == .alertFirstButtonReturn {
+                print(textField.stringValue)
+                for session in sessionsModel.sessionInfoList{
+                    self.sessionsModel.chatViewModels[session.id]?.cacheAPIKey(apiKey: textField.stringValue)
+                }
+                
+                return Alert(title: Text("更新api_key成功！"))
+            }else{
+                return Alert(title: Text("取消成功"))
+            }
+            
         }
-        
     }
     func bindToast() {
         viewModel.$chatErr

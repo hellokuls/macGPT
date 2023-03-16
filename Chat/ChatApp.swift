@@ -12,12 +12,9 @@ import SQLite3
 struct ChatApp: App {
     var body: some Scene {
         
-        
         WindowGroup{
             ContentView().background(Color.gray.opacity(0.1)).frame(width: 1000,height: 700)
         }
-       
-        
         
     }
     

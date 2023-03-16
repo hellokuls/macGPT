@@ -46,8 +46,8 @@ class ChatAPI: @unchecked Sendable {
         var request = URLRequest(url: urlComponents!.url!)
         request.httpMethod = endpoint.method
         request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
-        request.setValue("application/json", forHTTPHeaderField: "content-type")
-        
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        print(apiKey)
         let encoder = JSONEncoder()
         if let encoded = try? encoder.encode(body) {
             request.httpBody = encoded
@@ -58,10 +58,12 @@ class ChatAPI: @unchecked Sendable {
     private func makeRequest(request: URLRequest) async throws -> AsyncThrowingStream<String, Error> {
         let (result, response) = try await urlSession.bytes(for: request)
         
+        
         guard let httpResponse = response as? HTTPURLResponse else {
             throw ChatError.request(message: "Invalid response")
         }
-        
+//        print(httpResponse.statusCode)
+        print(result.lines)
         guard 200...299 ~= httpResponse.statusCode else {
             var errorText = ""
             for try await line in result.lines {
@@ -72,7 +74,7 @@ class ChatAPI: @unchecked Sendable {
             }
             throw ChatError.request(message: "Bad Response: \(httpResponse.statusCode). \(errorText)")
         }
-        
+
         return AsyncThrowingStream<String, Error> { continuation in
             Task(priority: .userInitiated) { [weak self] in
                 do {

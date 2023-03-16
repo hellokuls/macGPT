@@ -2,7 +2,7 @@ import Foundation
 import AppKit
 import SQLite3
 
-private let API_KEY = ""
+private let API_KEY = "api_key"
 
 class ChatViewModel: ObservableObject {
     @Published private(set) var messages: [ChatMessage] = []
@@ -14,9 +14,7 @@ class ChatViewModel: ObservableObject {
     @Published var chatErr: ChatError = .none
 
     var usingMarkdown: Bool = true
-
     private lazy var api = ChatAPI(apiKey: apiKey, messages: messages)
-
     var messageFeed = MessageFeed()
     
     init(sessionId:Int32) {
@@ -164,7 +162,7 @@ class ChatViewModel: ObservableObject {
     func request(question: String, sessionId: Int32) {
         Task {
             do {
-                let stream = try await api.sendMessage(question)
+                let stream = try await self.api.sendMessage(question)
                 let chat = await ChatMessage(role: .assistant, message: messageFeed.message, isReceived: true)
                
                 DispatchQueue.main.async {
@@ -197,10 +195,10 @@ class ChatViewModel: ObservableObject {
         }
     }
 
-    func cacheAPIKey() {
-        // Re init
-        apiKey = "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"
-        api = ChatAPI(apiKey: apiKey, messages: messages)
+    func cacheAPIKey(apiKey: String) {
+//        apiKey = "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"
+        self.api = ChatAPI(apiKey: apiKey, messages: messages)
+        self.apiKey = apiKey
         UserDefaults.standard.set(apiKey, forKey: API_KEY)
     }
     
