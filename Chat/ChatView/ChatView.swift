@@ -24,7 +24,25 @@ struct ChatView: View {
                         tag: sessionInfo.name,
                         selection: $select)
                     {
-                        Text(sessionInfo.name).frame(height: 20)
+                        Group {
+                            Text(sessionInfo.name)
+                                .frame(height: 20)
+                                .padding(1)
+                            if select == sessionInfo.name {
+                                Spacer()
+                                Button(action: {
+                                    // 调用删除方法
+                                    print(111111)
+                                    sessionsModel.chatViewModels.removeValue(forKey: sessionInfo.id)
+                                    print(sessionsModel.chatViewModels)
+                                    sessionsModel.chatViewModels[sessionInfo.id]?.deleteSessionInfo(sessionId: sessionInfo.id)
+                                    print(222222)
+                                }) {
+                                    Image(systemName: "trash")
+                                        .foregroundColor(.red)
+                                }
+                            }
+                        }
                     }
                 }
                 Spacer()

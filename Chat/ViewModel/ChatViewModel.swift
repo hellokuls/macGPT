@@ -109,7 +109,7 @@ class ChatViewModel: ObservableObject {
     func selectSessionDetail(sessionId: Int32){
         if sqlite3_open("gpt.db", &db) == SQLITE_OK {
             var statement: OpaquePointer?
-            let sql1 = "SELECT * FROM sessiondetail where sessionInfoId = ? ORDER BY parentId"
+            let sql1 = "SELECT * FROM (SELECT * FROM sessiondetail where sessionInfoId = ? ORDER BY parentId ASC LIMIT 10) sub ORDER BY parentId DESC;"
             if sqlite3_prepare_v2(db, sql1, -1, &statement, nil) != SQLITE_OK {
                 print("Error preparing statement")
 
@@ -128,6 +128,40 @@ class ChatViewModel: ObservableObject {
             sqlite3_finalize(statement)
             sqlite3_close(db)
         }
+    }
+    
+    // 删除sessioninfo
+    func deleteSessionInfo(sessionId: Int32) {
+        var deleteStatement1: OpaquePointer?
+        var deleteStatement2: OpaquePointer?
+
+        let deleteQuery1 = "DELETE FROM sessioninfo WHERE id = ?"
+        let deleteQuery2 = "DELETE FROM sessiondetail WHERE sessionInfoId = ?"
+        print(3333333)
+        if sqlite3_prepare_v2(db, deleteQuery1, -1, &deleteStatement1, nil) == SQLITE_OK
+              && sqlite3_prepare_v2(db, deleteQuery2, -1, &deleteStatement2, nil) == SQLITE_OK {
+
+            // 绑定参数
+            sqlite3_bind_int(deleteStatement1, 1, Int32(sessionId))
+            sqlite3_bind_int(deleteStatement2, 1, Int32(sessionId))
+
+            if sqlite3_step(deleteStatement1) == SQLITE_DONE {
+                print("Record deleted successfully.")
+            } else {
+                print("Error deleting record.")
+            }
+            
+            if sqlite3_step(deleteStatement2) == SQLITE_DONE {
+                print("Record deleted successfully.")
+            } else {
+                print("Error deleting record.")
+            }
+        } else {
+            print("Error preparing delete statement.")
+        }
+
+        sqlite3_finalize(deleteStatement1)
+        sqlite3_finalize(deleteStatement2)
     }
     
    
@@ -196,7 +230,6 @@ class ChatViewModel: ObservableObject {
     }
 
     func cacheAPIKey(apiKey: String) {
-//        apiKey = "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"
         self.api = ChatAPI(apiKey: apiKey, messages: messages)
         self.apiKey = apiKey
         UserDefaults.standard.set(apiKey, forKey: API_KEY)

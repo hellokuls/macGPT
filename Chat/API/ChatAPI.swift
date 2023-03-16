@@ -1,10 +1,3 @@
-//
-//  ChatAPI.swift
-//  Chat
-//
-//  Created by 杨志远 on 2023/3/8.
-//
-
 import Foundation
 
 class ChatAPI: @unchecked Sendable {
@@ -35,6 +28,7 @@ class ChatAPI: @unchecked Sendable {
         var messages = [systemMessage] + historyMessages + [ChatMessage(role: .user, message: newMessage, isReceived: false)]
         if messages.contentCount > (4000 * 4) {
             _ = historyMessages.dropFirst()
+            print("删除一些数据")
             messages = createMessages(from: newMessage)
         }
         return messages
@@ -62,7 +56,7 @@ class ChatAPI: @unchecked Sendable {
         guard let httpResponse = response as? HTTPURLResponse else {
             throw ChatError.request(message: "Invalid response")
         }
-//        print(httpResponse.statusCode)
+        print(httpResponse)
         print(result.lines)
         guard 200...299 ~= httpResponse.statusCode else {
             var errorText = ""
