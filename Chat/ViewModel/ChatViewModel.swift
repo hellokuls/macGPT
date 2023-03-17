@@ -18,7 +18,6 @@ class ChatViewModel: ObservableObject {
     var messageFeed = MessageFeed()
     
     init(sessionId:Int32) {
-        
         selectSessionDetail(sessionId: sessionId)
         apiKey = UserDefaults.standard.string(forKey: API_KEY) ?? ""
     }
@@ -247,7 +246,6 @@ class ChatViewModel: ObservableObject {
     func cacheAPIKey(apiKey: String) {
         self.api = ChatAPI(apiKey: apiKey, messages: messages)
         self.apiKey = apiKey
-        UserDefaults.standard.set(apiKey, forKey: API_KEY)
     }
     
     func copyMessage(_ message : ChatMessage) {

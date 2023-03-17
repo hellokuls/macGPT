@@ -153,49 +153,13 @@ struct ChatView: View {
 
             let result = alert.runModal()
             if result == .alertFirstButtonReturn {
-                print(textField.stringValue)
-                for session in sessionsModel.sessionInfoList{
-                    self.sessionsModel.chatViewModels[session.id]?.cacheAPIKey(apiKey: textField.stringValue)
-                }
-                NSApp.stopModal()
+                self.sessionsModel.cacheAPIKey(apiKey: textField.stringValue)
                 return Alert(title: Text("更新api_key成功！"))
             }else{
-                NSApp.stopModal()
                 return Alert(title: Text("取消成功"))
             }
             
         }
-    }
-    
-    func alertView(infoText: String, type: Int) -> Alert{
-        
-        let alert = NSAlert()
-        alert.messageText = "MacGPT"
-        alert.informativeText = infoText
-        alert.addButton(withTitle: "OK")
-        alert.addButton(withTitle: "Cancel")
-
-        let textField = NSTextField(frame: NSRect(x: 0, y: 0, width: 200, height: 24))
-        textField.lineBreakMode = .byClipping
-        alert.accessoryView = textField
-
-        let result = alert.runModal()
-        if result == .alertFirstButtonReturn {
-            print(textField.stringValue)
-            if(type == 100){
-                for session in sessionsModel.sessionInfoList{
-                    self.sessionsModel.chatViewModels[session.id]?.cacheAPIKey(apiKey: textField.stringValue)
-                }
-                
-                return Alert(title: Text("更新api_key成功！"))
-            }else if(type == 200){
-                return Alert(title: Text("新增会话成功！"))
-            }
-            
-        }else{
-            return Alert(title: Text("取消成功"))
-        }
-        return Alert(title: Text("取消成功"))
     }
     
     func bindToast() {

@@ -10,13 +10,16 @@ import AppKit
 import SQLite3
 import Combine
 
+private let API_KEY = "api_key"
 
 class ChatSessionModel: ObservableObject {
     @Published var sessionInfoList: [SessionDetail] = []
     @Published var chatViewModels: [Int32: ChatViewModel] = [:]
+    @Published var apiKey: String = ""
     var db: OpaquePointer?
     
     init() {
+        apiKey = UserDefaults.standard.string(forKey: API_KEY) ?? ""
         initDatabase()
         selectSessionInfo()
         
@@ -89,6 +92,18 @@ class ChatSessionModel: ObservableObject {
             }
             sqlite3_finalize(statement)
             sqlite3_close(db)
+        }
+    }
+    
+    func cacheAPIKey(apiKey: String) {
+        
+        // 先删除
+        UserDefaults.standard.removeObject(forKey: API_KEY)
+        // 再添加
+        UserDefaults.standard.set(apiKey, forKey: API_KEY)
+        // 每次更新apikey，直接把所有session都更新
+        for sessioninfo in sessionInfoList{
+            chatViewModels[sessioninfo.id]?.cacheAPIKey(apiKey: apiKey)
         }
     }
     
