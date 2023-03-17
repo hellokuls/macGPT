@@ -7,6 +7,9 @@
 
 有问题可以先看这里：https://github.com/hellokuls/macGPT/issues/1
 
+### 下载地址
+
+https://github.com/hellokuls/macGPT/releases
 
 ### 后续计划
 
