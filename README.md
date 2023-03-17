@@ -1,6 +1,6 @@
 ## macGPT
 
-> 第一个版本已经发布，大家可以去release下载！
+> 第一个版本已经发布，大家可以去release下载！[轻松解决Mac上「应用程序“xxx”不能打开」的问题](https://zhuanlan.zhihu.com/p/90691938)
 
 
 macOS原生 Application
