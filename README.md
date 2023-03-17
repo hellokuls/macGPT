@@ -1,4 +1,4 @@
-## macGPT
+## macChatGPT---macOS原生App
 
 > 第一个版本已经发布，大家可以去release下载！[轻松解决Mac上「应用程序“xxx”不能打开」的问题](https://zhuanlan.zhihu.com/p/90691938)
 
@@ -10,7 +10,6 @@ https://github.com/hellokuls/macGPT/issues/1
 
 ### 开发缘由
 
-macOS原生 Application
 
 因为自己是程序员，使用chatGPT web实在是不方便，需要不断刷新。所以一直想开发一个chatGPT mac客户端。
 
