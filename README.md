@@ -1,5 +1,8 @@
 ## macGPT
 
+> 第一个版本已经发布，大家可以去release下载！
+
+
 macOS原生 Application
 
 因为自己是程序员，使用chatGPT web实在是不方便，需要不断刷新。所以一直想开发一个chatGPT mac客户端。
@@ -7,6 +10,7 @@ macOS原生 Application
 偶然看见https://github.com/LeaderBoy/Chat
 
 但是该项目不是我想象中的样子，所以拿此项目进行改造。
+
 
 
 目前问题还有很多，下面是已经开发完了的：
@@ -22,4 +26,14 @@ macOS原生 Application
 
 <p align="center">
   <img src="Assets/s1.png?raw=true" alt="MacGPT"/>
+</p>
+
+<p align="center">
+  <img src="Assets/s2.png?raw=true" alt="MacGPT"/>
+</p>
+<p align="center">
+  <img src="Assets/s3.png?raw=true" alt="MacGPT"/>
+</p>
+<p align="center">
+  <img src="Assets/s4.png?raw=true" alt="MacGPT"/>
 </p>
