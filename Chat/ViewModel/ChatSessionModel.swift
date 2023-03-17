@@ -8,16 +8,18 @@
 import Foundation
 import AppKit
 import SQLite3
+import Combine
 
 
 class ChatSessionModel: ObservableObject {
-    var sessionInfoList: [SessionDetail] = []
-    var chatViewModels: [Int32: ChatViewModel] = [:]
+    @Published var sessionInfoList: [SessionDetail] = []
+    @Published var chatViewModels: [Int32: ChatViewModel] = [:]
     var db: OpaquePointer?
     
     init() {
         initDatabase()
         selectSessionInfo()
+        
         for sessioninfo in sessionInfoList{
             chatViewModels[sessioninfo.id] = ChatViewModel(sessionId: sessioninfo.id)
         }

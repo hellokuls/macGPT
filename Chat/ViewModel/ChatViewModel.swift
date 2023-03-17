@@ -18,6 +18,7 @@ class ChatViewModel: ObservableObject {
     var messageFeed = MessageFeed()
     
     init(sessionId:Int32) {
+        
         selectSessionDetail(sessionId: sessionId)
         apiKey = UserDefaults.standard.string(forKey: API_KEY) ?? ""
     }
@@ -48,7 +49,7 @@ class ChatViewModel: ObservableObject {
     
     
     // 新增sessionInfo
-    func insertSessionInfo(name: String){
+    func insertSessionInfo(name: String) -> Int32{
         if sqlite3_open("gpt.db", &db) == SQLITE_OK {
             var statement: OpaquePointer?
             let sql1 = "INSERT INTO sessioninfo (name) VALUES (?)"
@@ -61,11 +62,20 @@ class ChatViewModel: ObservableObject {
                 let errorMessage = String(cString: sqlite3_errmsg(db))
                 print("Error: \(errorMessage)")
             }else{
-                print("插入成功")
+                if let rowId = Optional(sqlite3_last_insert_rowid(db)) {
+                    // 在这里使用 rowId，它是一个非可选的 Int32 值
+                    print("插入成功")
+                    return Int32(rowId)
+                } else {
+                    // 如果 rowId 是 nil，则表示获取最后插入的行的 ID 失败
+                    return 0
+                }
+                
             }
             sqlite3_finalize(statement)
             sqlite3_close(db)
         }
+        return 0
     }
     
     
@@ -109,7 +119,7 @@ class ChatViewModel: ObservableObject {
     func selectSessionDetail(sessionId: Int32){
         if sqlite3_open("gpt.db", &db) == SQLITE_OK {
             var statement: OpaquePointer?
-            let sql1 = "SELECT * FROM (SELECT * FROM sessiondetail where sessionInfoId = ? ORDER BY parentId ASC LIMIT 10) sub ORDER BY parentId DESC;"
+            let sql1 = "SELECT * FROM (SELECT * FROM sessiondetail where sessionInfoId = ? ORDER BY parentId DESC LIMIT 10) sub ORDER BY parentId ASC;"
             if sqlite3_prepare_v2(db, sql1, -1, &statement, nil) != SQLITE_OK {
                 print("Error preparing statement")
 
@@ -132,36 +142,41 @@ class ChatViewModel: ObservableObject {
     
     // 删除sessioninfo
     func deleteSessionInfo(sessionId: Int32) {
-        var deleteStatement1: OpaquePointer?
-        var deleteStatement2: OpaquePointer?
+        if sqlite3_open("gpt.db", &db) == SQLITE_OK {
+            var deleteStatement1: OpaquePointer?
+            var deleteStatement2: OpaquePointer?
 
-        let deleteQuery1 = "DELETE FROM sessioninfo WHERE id = ?"
-        let deleteQuery2 = "DELETE FROM sessiondetail WHERE sessionInfoId = ?"
-        print(3333333)
-        if sqlite3_prepare_v2(db, deleteQuery1, -1, &deleteStatement1, nil) == SQLITE_OK
-              && sqlite3_prepare_v2(db, deleteQuery2, -1, &deleteStatement2, nil) == SQLITE_OK {
-
-            // 绑定参数
-            sqlite3_bind_int(deleteStatement1, 1, Int32(sessionId))
-            sqlite3_bind_int(deleteStatement2, 1, Int32(sessionId))
-
-            if sqlite3_step(deleteStatement1) == SQLITE_DONE {
-                print("Record deleted successfully.")
-            } else {
-                print("Error deleting record.")
-            }
+            let deleteQuery1 = "DELETE FROM sessioninfo WHERE id = ?"
+            let deleteQuery2 = "DELETE FROM sessiondetail WHERE sessionInfoId = ?"
             
-            if sqlite3_step(deleteStatement2) == SQLITE_DONE {
-                print("Record deleted successfully.")
-            } else {
-                print("Error deleting record.")
-            }
-        } else {
-            print("Error preparing delete statement.")
-        }
+            if sqlite3_prepare_v2(db, deleteQuery1, -1, &deleteStatement1, nil) == SQLITE_OK
+                  && sqlite3_prepare_v2(db, deleteQuery2, -1, &deleteStatement2, nil) == SQLITE_OK {
 
-        sqlite3_finalize(deleteStatement1)
-        sqlite3_finalize(deleteStatement2)
+                // 绑定参数
+                sqlite3_bind_int(deleteStatement1, 1, Int32(sessionId))
+                sqlite3_bind_int(deleteStatement2, 1, Int32(sessionId))
+
+                if sqlite3_step(deleteStatement1) == SQLITE_DONE {
+                    print("Record deleted successfully.")
+                } else {
+                    print("Error deleting record.")
+                }
+                
+                if sqlite3_step(deleteStatement2) == SQLITE_DONE {
+                    print("Record deleted successfully.")
+                } else {
+                    print("Error deleting record.")
+                }
+            } else {
+                print("Error preparing delete statement.")
+            }
+
+            sqlite3_finalize(deleteStatement1)
+            sqlite3_finalize(deleteStatement2)
+            sqlite3_close(db)
+
+        }
+        
     }
     
    
