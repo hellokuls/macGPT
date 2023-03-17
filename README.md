@@ -5,7 +5,7 @@
 
 ### 已知bug汇总
 
-https://github.com/hellokuls/macGPT/issues/1
+有问题可以先看这里：https://github.com/hellokuls/macGPT/issues/1
 
 
 ### 后续计划
