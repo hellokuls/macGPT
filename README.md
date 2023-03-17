@@ -8,6 +8,13 @@
 https://github.com/hellokuls/macGPT/issues/1
 
 
+### 后续计划
+
+- Prompt支持
+- 已知bug修复
+- 稳定性增强
+- 项目架构整理（现在比较乱）
+
 ### 开发缘由
 
 
