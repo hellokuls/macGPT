@@ -16,7 +16,7 @@ class ChatSessionModel: ObservableObject {
     @Published var sessionInfoList: [SessionDetail] = []
     @Published var chatViewModels: [Int32: ChatViewModel] = [:]
     @Published var apiKey: String = ""
-    var db: OpaquePointer?
+    @Published var db: OpaquePointer?
     
     init() {
         apiKey = UserDefaults.standard.string(forKey: API_KEY) ?? ""

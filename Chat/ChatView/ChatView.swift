@@ -6,7 +6,7 @@ import SQLite3
 struct ChatView: View {
     
     @State var viewModel = ChatViewModel(sessionId: 1)
-    @State var sessionsModel = ChatSessionModel()
+    @ObservedObject var sessionsModel = ChatSessionModel()
     @State var showAlert: Bool = false
     @State private var showToast = false
     @State private var bindings: Set<AnyCancellable> = []
@@ -14,56 +14,7 @@ struct ChatView: View {
     @State private var inputText = ""
     @State private var showAddSession = false
     
-    struct EditView: View {
-        @Binding var sessionsModel1 : ChatSessionModel
-        @State var viewModel = ChatViewModel(sessionId: 1)
-        @Binding var showAddSession : Bool
-        @State private var sessionName = ""
-        @Binding var select: String?
-        var body: some View {
-            VStack {
-                Image("AppIcon")
-                TextField("输入会话名称", text: $sessionName)
-                            .padding()
-                            .cornerRadius(10)
-                            .font(.system(size: 18))
-                HStack {
-                    Button(action: {
-                        showAddSession = false
-                    }) {
-                        Text("取消")
-                            .foregroundColor(.white)
-                            .padding()
-                            .background(Color.red)
-                            .cornerRadius(10)
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    
-                    Spacer()
-                    
-                    Button(action: {
-                        // 在这里执行创建会话的操作
-                        let id = viewModel.insertSessionInfo(name: sessionName)
-                        sessionsModel1.sessionInfoList.append(SessionDetail(id: id, name: sessionName))
-                        showAddSession = false
-                        select = sessionsModel1.sessionInfoList[0].name
-                    }) {
-                        Text("创建")
-                            .foregroundColor(.white)
-                            .padding()
-                            .background(Color.green)
-                            .cornerRadius(10)
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                }
-                .padding(.horizontal)
-            }
-            .frame(width: 300, height: 200)
-        }
-    }
-    
     var body: some View {
-        
         NavigationView{
             VStack{
                 List
@@ -79,17 +30,20 @@ struct ChatView: View {
                                 Text(sessionInfo.name)
                                     .frame(height: 20)
                                     .padding(1)
-                                if select == sessionInfo.name {
+                                if select == sessionInfo.name && self.sessionsModel.sessionInfoList.count > 1 {
                                     Spacer()
                                     Button(action: {
                                         // 调用删除方法
-                                        DispatchQueue.main.async {
-                                            self.sessionsModel.sessionInfoList.removeAll(where: {$0.id == sessionInfo.id})
-                                            self.sessionsModel.chatViewModels[sessionInfo.id]?.deleteSessionInfo(sessionId: sessionInfo.id)
-                                            self.sessionsModel.chatViewModels.removeValue(forKey: sessionInfo.id)
-                                            select = sessionsModel.sessionInfoList[0].name
-                                        }
-
+                                        print(sessionsModel.sessionInfoList.count)
+                                            DispatchQueue.main.async {
+                                                self.sessionsModel.chatViewModels[sessionInfo.id]?.deleteSessionInfo(sessionId: sessionInfo.id)
+                                                self.sessionsModel.chatViewModels.removeValue(forKey: sessionInfo.id)
+                                                if select == sessionsModel.sessionInfoList[self.sessionsModel.sessionInfoList.count - 1].name{
+                                                    self.sessionsModel.sessionInfoList.removeAll(where: {$0.id == sessionInfo.id})
+                                                    select = sessionsModel.sessionInfoList[self.sessionsModel.sessionInfoList.count - 1].name
+                                                }
+                                                
+                                            }
                                     }) {
                                         Image(systemName: "trash")
                                     }.buttonStyle(BorderlessButtonStyle())
@@ -98,7 +52,6 @@ struct ChatView: View {
                         }
                     }
                     Spacer()
-                    
                 }.listStyle(SidebarListStyle())
 
                 
@@ -111,7 +64,7 @@ struct ChatView: View {
                             .foregroundColor(.white)
                             .padding()
                     }.sheet(isPresented: $showAddSession) {
-                      EditView(sessionsModel1: $sessionsModel, showAddSession: $showAddSession,select: $select)
+                      EditView(sessionsModel1: sessionsModel, showAddSession: $showAddSession,select: $select)
                      }
                     
                     Button(action: {
@@ -171,6 +124,55 @@ struct ChatView: View {
             }.store(in: &bindings)
     }
    
+}
+
+
+struct EditView: View {
+    @ObservedObject var sessionsModel1 : ChatSessionModel
+    @State var viewModel = ChatViewModel(sessionId: 1)
+    @Binding var showAddSession : Bool
+    @State private var sessionName = ""
+    @Binding var select: String?
+    var body: some View {
+        VStack {
+            Image("AppIcon")
+            TextField("输入会话名称", text: $sessionName)
+                        .padding()
+                        .cornerRadius(10)
+                        .font(.system(size: 18))
+            HStack {
+                Button(action: {
+                    showAddSession = false
+                }) {
+                    Text("取消")
+                        .foregroundColor(.white)
+                        .padding()
+                        .background(Color.red)
+                        .cornerRadius(10)
+                }
+                .buttonStyle(PlainButtonStyle())
+                
+                Spacer()
+                
+                Button(action: {
+                    // 在这里执行创建会话的操作
+                    let id = viewModel.insertSessionInfo(name: sessionName)
+                    sessionsModel1.sessionInfoList.append(SessionDetail(id: id, name: sessionName))
+                    showAddSession = false
+                    select = sessionsModel1.sessionInfoList[sessionsModel1.sessionInfoList.count - 1].name
+                }) {
+                    Text("创建")
+                        .foregroundColor(.white)
+                        .padding()
+                        .background(Color.green)
+                        .cornerRadius(10)
+                }
+                .buttonStyle(PlainButtonStyle())
+            }
+            .padding(.horizontal)
+        }
+        .frame(width: 300, height: 200)
+    }
 }
 
 
