@@ -18,6 +18,7 @@ https://github.com/hellokuls/macGPT/releases
 - 已知bug修复
 - 稳定性增强
 - 项目架构整理（现在比较乱）
+- 接入多模型以及web版本chatGPT
 
 ### 开发缘由
 
