@@ -45,3 +45,8 @@ https://github.com/hellokuls/macGPT/releases
 <p align="center">
   <img src="Assets/s4.png?raw=true" alt="MacGPT"/>
 </p>
+
+### 这里有个群
+<p align="center">
+  <img src="Assets/qun.png?raw=true" alt="MacGPT"/>
+</p>
