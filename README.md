@@ -38,10 +38,10 @@ https://github.com/hellokuls/macGPT/releases
 </p>
 
 <p align="center">
-  <img src="Assets/s2.png?raw=true" alt="MacGPT"/>
+  <img src="Assets/s5.png?raw=true" alt="MacGPT"/>
 </p>
 <p align="center">
-  <img src="Assets/s3.png?raw=true" alt="MacGPT"/>
+  <img src="Assets/s6.png?raw=true" alt="MacGPT"/>
 </p>
 <p align="center">
   <img src="Assets/s4.png?raw=true" alt="MacGPT"/>
