@@ -13,8 +13,6 @@ https://github.com/hellokuls/macGPT/releases
 
 ### 后续计划
 
-ps: 大佬们可以认领，直接issue提即可
-
 - 中国境内免VPN使用(要花钱买服务器，点个star支持下吧！)
 - Prompt支持
 - 已知bug修复
