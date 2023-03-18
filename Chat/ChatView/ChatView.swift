@@ -42,7 +42,6 @@ struct ChatView: View {
                                                     self.sessionsModel.sessionInfoList.removeAll(where: {$0.id == sessionInfo.id})
                                                     select = sessionsModel.sessionInfoList[self.sessionsModel.sessionInfoList.count - 1].name
                                                 }
-                                                
                                             }
                                     }) {
                                         Image(systemName: "trash")
