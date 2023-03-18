@@ -17,7 +17,4 @@ struct ChatApp: App {
         }
         
     }
-    
-    
-   
 }
