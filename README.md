@@ -9,7 +9,7 @@
 
 ### 下载地址
 
-https://github.com/hellokuls/macGPT/releases
+下载版本最新的：https://github.com/hellokuls/macGPT/releases
 
 ### 后续计划
 
