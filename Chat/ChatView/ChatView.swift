@@ -78,7 +78,11 @@ struct ChatView: View {
                         alert.accessoryView = contentView
                         let result = alert.runModal()
                         if result == .alertFirstButtonReturn {
-                            self.sessionsModel.cacheAPIKey(apiKey: textField1.stringValue)
+                            // 在这里执行创建会话的操作
+                            let id = viewModel.insertSessionInfo(name: textField1.stringValue)
+                            sessionsModel.sessionInfoList.append(SessionDetail(id: id, name: textField1.stringValue))
+                            showAddSession = false
+                            select = sessionsModel.sessionInfoList[sessionsModel.sessionInfoList.count - 1].name
                         }
                     }) {
                         Text("添加会话")
@@ -86,7 +90,11 @@ struct ChatView: View {
                             .padding()
                     }
                     Button(action: {
-                        
+                        let alert = NSAlert()
+                        alert.messageText = "检查更新"
+                        alert.informativeText = "请前往https://github.com/hellokuls/macGPT/releases下载最新版"
+                        alert.addButton(withTitle: "OK")
+                        let result = alert.runModal()
                     }) {
                         Text("检查更新")
                             .foregroundColor(.white)
@@ -136,76 +144,6 @@ struct ChatView: View {
             }.store(in: &bindings)
     }
    
-}
-
-
-struct EditView: View {
-    @ObservedObject var sessionsModel1 : ChatSessionModel
-    @State var viewModel = ChatViewModel(sessionId: 1)
-    @Binding var showAddSession : Bool
-    @State private var sessionName = ""
-    @Binding var select: String?
-    @State private var articleText = ""
-    var body: some View {
-        VStack {
-//            Image("128.png")
-
-
-//
-//            TextEditor(text: $articleText)
-//                            .frame(minHeight: 100)
-//                            .cornerRadius(5)
-//                            .padding()
-//                            .overlay(
-//                                RoundedRectangle(cornerRadius: 5)
-//                                    .stroke(Color.gray)
-//                            )
-//                            .padding().background(Color(NSColor.windowBackgroundColor).opacity(0.4))
-            Text("新建会话")
-                .font(.headline)
-                .padding(.bottom, 10)
-            Text("Popup Message")
-                .font(.subheadline)
-                .multilineTextAlignment(.center)
-                .padding(.bottom, 20)
-
-            TextField("输入会话名称", text: $sessionName)
-                        .padding()
-                        .cornerRadius(10)
-                        .font(.system(size: 15)).background(Color(NSColor.windowBackgroundColor).opacity(0.4))
-            HStack {
-                Button(action: {
-                    showAddSession = false
-                }) {
-                    Text("取消")
-                        .foregroundColor(.white)
-                        .padding(10)
-                        .background(Color.red)
-                        .cornerRadius(10)
-                }
-                .buttonStyle(PlainButtonStyle())
-
-                Spacer()
-
-                Button(action: {
-                    // 在这里执行创建会话的操作
-                    let id = viewModel.insertSessionInfo(name: sessionName)
-                    sessionsModel1.sessionInfoList.append(SessionDetail(id: id, name: sessionName))
-                    showAddSession = false
-                    select = sessionsModel1.sessionInfoList[sessionsModel1.sessionInfoList.count - 1].name
-                }) {
-                    Text("创建")
-                        .foregroundColor(.white)
-                        .padding(10)
-                        .background(Color.green)
-                        .cornerRadius(10)
-                }
-                .buttonStyle(PlainButtonStyle())
-            }
-            .padding(.horizontal)
-        }
-        .frame(width: 300, height: 300).padding().background(Color(NSColor.windowBackgroundColor)).opacity(0.8)
-    }
 }
 
 
