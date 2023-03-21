@@ -9,16 +9,19 @@
 
 ### 下载地址
 
-https://github.com/hellokuls/macGPT/releases
+下载版本最新的：https://github.com/hellokuls/macGPT/releases
 
 ### 后续计划
 
-- 中国境内免VPN使用(要花钱买服务器，点个star支持下吧！)
-- Prompt支持
+- 代理模式
+- 自建服务器，免vpn
+- 会话自定义Prompt支持
 - 已知bug修复
 - 稳定性增强
 - 项目架构整理（现在比较乱）
 - 接入多模型以及web版本chatGPT
+- 余额显示
+- 图片AI接入
 
 ### 开发缘由
 
