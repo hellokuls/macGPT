@@ -26,8 +26,6 @@ struct ChatToolBarView: View {
                         .lineLimit(2 ... 4)
                         .textFieldStyle(.plain)
                         .frame(height: height)
-//                        .clipShape(RoundedRectangle(cornerRadius: 30))
-//                        .cornerRadius(30)
                         .focused($isFocused)
                         .onSubmit {
                             sendMessage()
@@ -40,8 +38,6 @@ struct ChatToolBarView: View {
                     TextField("Message...", text: $question)
                         .textFieldStyle(.plain)
                         .frame(height: height)
-//                        .clipShape(RoundedRectangle(cornerRadius: 30))
-//                        .cornerRadius(30)
                         .focused($isFocused)
                         .onSubmit {
                             sendMessage()
@@ -67,14 +63,10 @@ struct ChatToolBarView: View {
             if let er = error as? ChatError {
                 self.viewModel.chatErr = er
             } else {
-                self.viewModel.chatErr = .request(message: error.localizedDescription)
+                self.viewModel.chatErr = .request(message: "\(error)")
             }
+            NotificationCenter.default.post(name: Notification.Name("MyNotification"), object: nil)
         }
     }
 }
 
-//struct ChatToolBarView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        ChatToolBarView().environmentObject(ChatViewModel())
-//    }
-//}

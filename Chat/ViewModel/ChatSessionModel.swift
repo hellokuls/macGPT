@@ -17,12 +17,10 @@ class ChatSessionModel: ObservableObject {
     @Published var chatViewModels: [Int32: ChatViewModel] = [:]
     @Published var apiKey: String = ""
     @Published var db: OpaquePointer?
-    
     init() {
         apiKey = UserDefaults.standard.string(forKey: API_KEY) ?? ""
         initDatabase()
         selectSessionInfo()
-        
         for sessioninfo in sessionInfoList{
             chatViewModels[sessioninfo.id] = ChatViewModel(sessionId: sessioninfo.id)
         }
@@ -30,9 +28,8 @@ class ChatSessionModel: ObservableObject {
     
     func initDatabase() {
         if sqlite3_open("gpt.db", &db) == SQLITE_OK {
-            print("成功打开数据库")
             let createApiKeysTableSql = "CREATE TABLE IF NOT EXISTS apikeys (id INTEGER PRIMARY KEY AUTOINCREMENT,keyname TEXT);"
-            let createSessionInfoTableSql = "CREATE TABLE IF NOT EXISTS sessioninfo (id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT);"
+            let createSessionInfoTableSql = "CREATE TABLE IF NOT EXISTS sessioninfo (id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT,prompt TEXT);"
             let createSessionDetailTableSql = "CREATE TABLE IF NOT EXISTS sessiondetail (id INTEGER PRIMARY KEY AUTOINCREMENT,message TEXT,sessionInfoId INTEGER, parentId INTEGER, isReceived INTEGER);"
 
             var createTableStatement: OpaquePointer?
@@ -95,16 +92,38 @@ class ChatSessionModel: ObservableObject {
         }
     }
     
-    func cacheAPIKey(apiKey: String) {
-        
-        // 先删除
-        UserDefaults.standard.removeObject(forKey: API_KEY)
-        // 再添加
-        UserDefaults.standard.set(apiKey, forKey: API_KEY)
-        // 每次更新apikey，直接把所有session都更新
-        for sessioninfo in sessionInfoList{
-            chatViewModels[sessioninfo.id]?.cacheAPIKey(apiKey: apiKey)
+    // 插入apikey
+    func insertAPIKey(keyname : String) -> Int32{
+        if sqlite3_open("gpt.db", &db) == SQLITE_OK {
+            var statement: OpaquePointer?
+            let sql1 = "INSERT INTO apikeys (keyname) VALUES (?)"
+            if sqlite3_prepare_v2(db, sql1, -1, &statement, nil) != SQLITE_OK {
+                print("Error preparing statement")
+            }
+            sqlite3_bind_text(statement, 1, keyname, -1, nil)
+
+            if sqlite3_step(statement) != SQLITE_DONE {
+                let errorMessage = String(cString: sqlite3_errmsg(db))
+                print("Error: \(errorMessage)")
+            }else{
+                if let rowId = Optional(sqlite3_last_insert_rowid(db)) {
+                    // 在这里使用 rowId，它是一个非可选的 Int32 值
+                    print("插入成功")
+                    return Int32(rowId)
+                } else {
+                    // 如果 rowId 是 nil，则表示获取最后插入的行的 ID 失败
+                    return 0
+                }
+            }
+            sqlite3_finalize(statement)
+            sqlite3_close(db)
         }
+        
+        return 0
+    }
+    
+    func cacheAPIKey(apiKey: String) {
+        _ = insertAPIKey(keyname: apiKey)
     }
     
     

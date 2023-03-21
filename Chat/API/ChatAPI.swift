@@ -11,7 +11,7 @@ class ChatAPI: @unchecked Sendable {
         return jsonDecoder
     }()
 
-    init(apiKey: String, systemPrompt: String = "你是一个很优秀的助手", messages: [ChatMessage]) {
+    init(apiKey: String, systemPrompt: String, messages: [ChatMessage]) {
         self.apiKey = apiKey
         self.systemMessage = ChatMessage(role: .system, message: systemPrompt, isReceived: true)
         self.historyMessages = messages
@@ -26,7 +26,8 @@ class ChatAPI: @unchecked Sendable {
     
     private func createMessages(from newMessage: String) -> [ChatMessage] {
         var messages = [systemMessage] + historyMessages + [ChatMessage(role: .user, message: newMessage, isReceived: false)]
-        if messages.contentCount > (4000 * 4) {
+        print(messages.contentCount)
+        if messages.contentCount > (1000 * 4) {
             _ = historyMessages.dropFirst()
             print("删除一些数据")
             messages = createMessages(from: newMessage)
@@ -51,13 +52,9 @@ class ChatAPI: @unchecked Sendable {
     
     private func makeRequest(request: URLRequest) async throws -> AsyncThrowingStream<String, Error> {
         let (result, response) = try await urlSession.bytes(for: request)
-        
-        
         guard let httpResponse = response as? HTTPURLResponse else {
             throw ChatError.request(message: "Invalid response")
         }
-        print(httpResponse)
-        print(result.lines)
         guard 200...299 ~= httpResponse.statusCode else {
             var errorText = ""
             for try await line in result.lines {

@@ -33,6 +33,7 @@
 		52849A4529B84CB100AF4117 /* R.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52849A4229B84CB100AF4117 /* R.swift */; };
 		52849A4629B84CB100AF4117 /* R + Text.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52849A4329B84CB100AF4117 /* R + Text.swift */; };
 		52849A4729B84CB100AF4117 /* R + Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52849A4429B84CB100AF4117 /* R + Color.swift */; };
+		AD2102A629C7FC8C009273D1 /* SQLiteManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD2102A529C7FC8C009273D1 /* SQLiteManager.swift */; };
 		AD64C75429C16E1E00AEAAED /* ChatSessionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD64C75329C16E1E00AEAAED /* ChatSessionModel.swift */; };
 		ADEC86B429BDC7300035CA71 /* ChatSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADEC86B329BDC7300035CA71 /* ChatSessionView.swift */; };
 		ADEC86B829BEAC250035CA71 /* SessionDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADEC86B729BEAC240035CA71 /* SessionDetail.swift */; };
@@ -65,6 +66,9 @@
 		52849A4229B84CB100AF4117 /* R.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = R.swift; sourceTree = "<group>"; };
 		52849A4329B84CB100AF4117 /* R + Text.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "R + Text.swift"; sourceTree = "<group>"; };
 		52849A4429B84CB100AF4117 /* R + Color.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "R + Color.swift"; sourceTree = "<group>"; };
+		AD0D14DF29C857DB0025B25F /* SwiftyJSON-master */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "SwiftyJSON-master"; path = "../../../Downloads/SwiftyJSON-master"; sourceTree = "<group>"; };
+		AD2102A429C7FC68009273D1 /* SQLite.swift-master */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "SQLite.swift-master"; path = "../../../Downloads/SQLite.swift-master"; sourceTree = "<group>"; };
+		AD2102A529C7FC8C009273D1 /* SQLiteManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SQLiteManager.swift; sourceTree = "<group>"; };
 		AD64C75329C16E1E00AEAAED /* ChatSessionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatSessionModel.swift; sourceTree = "<group>"; };
 		ADEC86B329BDC7300035CA71 /* ChatSessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatSessionView.swift; sourceTree = "<group>"; };
 		ADEC86B729BEAC240035CA71 /* SessionDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionDetail.swift; sourceTree = "<group>"; };
@@ -88,6 +92,7 @@
 		5236D32329B5AAD300F083BA = {
 			isa = PBXGroup;
 			children = (
+				AD2102A329C7FC68009273D1 /* Packages */,
 				5236D32E29B5AAD400F083BA /* Chat */,
 				5236D32D29B5AAD300F083BA /* Products */,
 			);
@@ -112,6 +117,7 @@
 				52849A2929B82FDA00AF4117 /* ChatView */,
 				52849A3729B8406200AF4117 /* Helper */,
 				52849A3029B8312600AF4117 /* API */,
+				AD2102A229C7FA9C009273D1 /* DB */,
 				52849A2B29B82FF600AF4117 /* Model */,
 				52849A2A29B82FEB00AF4117 /* ViewModel */,
 				5236D33329B5AAD400F083BA /* Assets.xcassets */,
@@ -205,6 +211,23 @@
 				52849A4029B84C0C00AF4117 /* Localizable.strings */,
 			);
 			path = Resource;
+			sourceTree = "<group>";
+		};
+		AD2102A229C7FA9C009273D1 /* DB */ = {
+			isa = PBXGroup;
+			children = (
+				AD2102A529C7FC8C009273D1 /* SQLiteManager.swift */,
+			);
+			path = DB;
+			sourceTree = "<group>";
+		};
+		AD2102A329C7FC68009273D1 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				AD2102A429C7FC68009273D1 /* SQLite.swift-master */,
+				AD0D14DF29C857DB0025B25F /* SwiftyJSON-master */,
+			);
+			name = Packages;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -307,6 +330,7 @@
 				52849A2829B82F8800AF4117 /* Endpoint.swift in Sources */,
 				AD64C75429C16E1E00AEAAED /* ChatSessionModel.swift in Sources */,
 				52849A2D29B8305900AF4117 /* ChatMessage.swift in Sources */,
+				AD2102A629C7FC8C009273D1 /* SQLiteManager.swift in Sources */,
 				52849A4729B84CB100AF4117 /* R + Color.swift in Sources */,
 				5236D34729B5BBEC00F083BA /* ChatMessageView.swift in Sources */,
 				5236D34129B5AEA200F083BA /* ChatViewModel.swift in Sources */,

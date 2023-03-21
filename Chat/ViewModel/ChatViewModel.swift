@@ -10,18 +10,86 @@ class ChatViewModel: ObservableObject {
     @Published private(set) var lastMessageID: String = ""
     @Published private(set) var isWorking: Bool = false
     @Published var apiKey: String = ""
+    @Published var prompt: String = ""
     var db: OpaquePointer?
     @Published var chatErr: ChatError = .none
-
     var usingMarkdown: Bool = true
-    private lazy var api = ChatAPI(apiKey: apiKey, messages: messages)
     var messageFeed = MessageFeed()
     
     init(sessionId:Int32) {
         selectSessionDetail(sessionId: sessionId)
-        apiKey = UserDefaults.standard.string(forKey: API_KEY) ?? ""
+    }
+    
+    @discardableResult
+    func sendMessage(_ message: String, sessionId: Int32) throws -> ChatMessage {
+        if message.trimmingCharacters(in: .whitespaces).isEmpty {
+            throw ChatError.noQuestion
+        }
+        
+        self.apiKey = selectAPIKey()
+        
+        if self.apiKey.isEmpty {
+            throw ChatError.noAPIKey
+        }
+
+        if isWorking {
+            throw ChatError.isWorking
+        }
+        isWorking = true
+        // 获取发送的消息
+        let chat = ChatMessage(role: .user, message: message, isReceived: false)
+        insertSessionDetail(message: message, sessionId: sessionId, isReceived: 0)
+        messages.append(chat)
+        lastMessageID = chat.id
+        lastMessage = message
+        request(question: message, sessionId: sessionId, apikey: self.apiKey)
+        return chat
     }
 
+    func request(question: String, sessionId: Int32, apikey: String) {
+        Task {
+            do {
+                let prompt = selectPrompt(sessionId: sessionId)
+                let api = ChatAPI(apiKey: apikey, systemPrompt: prompt, messages: self.messages)
+                let stream = try await api.sendMessage(question)
+                let chat = await ChatMessage(role: .assistant, message: messageFeed.message, isReceived: true)
+               
+                DispatchQueue.main.async {
+                    self.lastMessageID = chat.id
+                    self.messages.append(chat)
+                }
+                for try await line in stream {
+                    await messageFeed.append(line: line)
+                    let newMessage = await messageFeed.message
+                    DispatchQueue.main.async {
+                        var last = self.messages.last!
+                        last.message = newMessage
+                        self.messages[self.messages.count - 1] = last
+                        self.lastMessage = newMessage
+                    }
+                }
+                // 写入数据库
+                await insertSessionDetail(message: messageFeed.message, sessionId: sessionId, isReceived: 1)
+                await messageFeed.reset()
+                DispatchQueue.main.async {
+                    self.isWorking = false
+                }
+            } catch {
+                await messageFeed.reset()
+              
+                DispatchQueue.main.async {
+                    self.isWorking = false
+                    self.chatErr = .request(message: "\(error)")
+                    NotificationCenter.default.post(name: Notification.Name("MyNotification"), object: nil)
+                }
+            }
+        }
+    }
+    
+    func copyMessage(_ message : ChatMessage) {
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(message.message, forType: .string)
+    }
     
     
     // 新增apikey
@@ -48,29 +116,38 @@ class ChatViewModel: ObservableObject {
     
     
     // 新增sessionInfo
-    func insertSessionInfo(name: String) -> Int32{
+    func insertSessionInfo(name: String, prompt: String) -> Int32{
         if sqlite3_open("gpt.db", &db) == SQLITE_OK {
+            var stmt: OpaquePointer?
+            let queryString = "SELECT COUNT(*) FROM sessioninfo WHERE name = ?"
+            if sqlite3_prepare_v2(db, queryString, -1, &stmt, nil) == SQLITE_OK {
+                sqlite3_bind_text(stmt, 1, name, -1, nil)
+                if sqlite3_step(stmt) == SQLITE_ROW {
+                    let count = sqlite3_column_int(stmt, 0)
+                    if count > 0 {
+                        return 0
+                    }
+                }
+            }
+            
             var statement: OpaquePointer?
-            let sql1 = "INSERT INTO sessioninfo (name) VALUES (?)"
+            let sql1 = "INSERT INTO sessioninfo (name,prompt) VALUES (?,?)"
             if sqlite3_prepare_v2(db, sql1, -1, &statement, nil) != SQLITE_OK {
                 print("Error preparing statement")
             }
             sqlite3_bind_text(statement, 1, name, -1, nil)
-
+            sqlite3_bind_text(statement, 2, prompt, -1, nil)
             if sqlite3_step(statement) != SQLITE_DONE {
                 let errorMessage = String(cString: sqlite3_errmsg(db))
                 print("Error: \(errorMessage)")
             }else{
                 if let rowId = Optional(sqlite3_last_insert_rowid(db)) {
-                    // 在这里使用 rowId，它是一个非可选的 Int32 值
-                    print("插入成功")
                     return Int32(rowId)
                 } else {
-                    // 如果 rowId 是 nil，则表示获取最后插入的行的 ID 失败
                     return 0
                 }
-                
             }
+            sqlite3_finalize(stmt)
             sqlite3_finalize(statement)
             sqlite3_close(db)
         }
@@ -178,79 +255,42 @@ class ChatViewModel: ObservableObject {
         
     }
     
-   
-    
-    
-    @discardableResult
-    func sendMessage(_ message: String, sessionId: Int32) throws -> ChatMessage {
-        if message.trimmingCharacters(in: .whitespaces).isEmpty {
-            throw ChatError.noQuestion
-        }
-
-        if apiKey.isEmpty {
-            throw ChatError.noAPIKey
-        }
-
-        if isWorking {
-            throw ChatError.isWorking
-        }
-        isWorking = true
-        // 获取发送的消息
-        let chat = ChatMessage(role: .user, message: message, isReceived: false)
-        // 写入数据库
-        insertSessionDetail(message: message, sessionId: sessionId, isReceived: 0)
-        print(chat.message)
-        messages.append(chat)
-        lastMessageID = chat.id
-        lastMessage = message
-        request(question: message, sessionId: sessionId)
-        return chat
-    }
-
-    func request(question: String, sessionId: Int32) {
-        Task {
-            do {
-                let stream = try await self.api.sendMessage(question)
-                let chat = await ChatMessage(role: .assistant, message: messageFeed.message, isReceived: true)
-               
-                DispatchQueue.main.async {
-                    self.lastMessageID = chat.id
-                    self.messages.append(chat)
-                }
-                for try await line in stream {
-                    await messageFeed.append(line: line)
-                    let newMessage = await messageFeed.message
-                    DispatchQueue.main.async {
-                        var last = self.messages.last!
-                        last.message = newMessage
-                        self.messages[self.messages.count - 1] = last
-                        self.lastMessage = newMessage
-                    }
-                }
-                // 写入数据库
-                await insertSessionDetail(message: messageFeed.message, sessionId: sessionId, isReceived: 1)
-                await messageFeed.reset()
-                DispatchQueue.main.async {
-                    self.isWorking = false
-                }
-            } catch {
-                await messageFeed.reset()
-                DispatchQueue.main.async {
-                    self.isWorking = false
-                    self.chatErr = .request(message: error.localizedDescription)
-                }
+    // 从数据库中查询apikey
+    func selectAPIKey() -> String{
+        if sqlite3_open("gpt.db", &db) == SQLITE_OK {
+            var statement: OpaquePointer?
+            let sql1 = "SELECT * FROM apikeys"
+            if sqlite3_prepare_v2(db, sql1, -1, &statement, nil) != SQLITE_OK {
+                print("Error preparing statement")
             }
+            while sqlite3_step(statement) == SQLITE_ROW {
+                _ = sqlite3_column_int(statement, 0)
+                let keyname = String(cString: sqlite3_column_text(statement, 1))
+                self.apiKey = keyname
+            }
+            sqlite3_finalize(statement)
+            sqlite3_close(db)
         }
-    }
-
-    func cacheAPIKey(apiKey: String) {
-        self.api = ChatAPI(apiKey: apiKey, messages: messages)
-        self.apiKey = apiKey
+        return self.apiKey
     }
     
-    func copyMessage(_ message : ChatMessage) {
-        NSPasteboard.general.clearContents()
-        NSPasteboard.general.setString(message.message, forType: .string)
+    // 从数据库中查询prompt
+    func selectPrompt(sessionId: Int32) -> String{
+        if sqlite3_open("gpt.db", &db) == SQLITE_OK {
+            var statement: OpaquePointer?
+            let sql1 = "SELECT prompt FROM sessioninfo where id = ?"
+            if sqlite3_prepare_v2(db, sql1, -1, &statement, nil) != SQLITE_OK {
+                print("Error preparing statement")
+            }
+            sqlite3_bind_int(statement, 1, Int32(sessionId))
+            while sqlite3_step(statement) == SQLITE_ROW {
+                let prompt = String(cString: sqlite3_column_text(statement, 0))
+                self.prompt = prompt
+            }
+            sqlite3_finalize(statement)
+            sqlite3_close(db)
+        }
+        return self.prompt
     }
 }
 
