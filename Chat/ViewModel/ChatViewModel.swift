@@ -118,8 +118,13 @@ class ChatViewModel: ObservableObject {
     // 新增sessionInfo
     func insertSessionInfo(name: String, prompt: String) -> Int32{
         if sqlite3_open("gpt.db", &db) == SQLITE_OK {
+            
             var stmt: OpaquePointer?
             let queryString = "SELECT COUNT(*) FROM sessioninfo WHERE name = ?"
+            defer{
+                sqlite3_finalize(stmt)
+                sqlite3_close(db)
+            }
             if sqlite3_prepare_v2(db, queryString, -1, &stmt, nil) == SQLITE_OK {
                 sqlite3_bind_text(stmt, 1, name, -1, nil)
                 if sqlite3_step(stmt) == SQLITE_ROW {
@@ -130,13 +135,22 @@ class ChatViewModel: ObservableObject {
                 }
             }
             
+        }
+        
+        if sqlite3_open("gpt.db", &db) == SQLITE_OK {
             var statement: OpaquePointer?
             let sql1 = "INSERT INTO sessioninfo (name,prompt) VALUES (?,?)"
+            defer{
+                sqlite3_finalize(statement)
+                sqlite3_close(db)
+            }
             if sqlite3_prepare_v2(db, sql1, -1, &statement, nil) != SQLITE_OK {
                 print("Error preparing statement")
             }
             sqlite3_bind_text(statement, 1, name, -1, nil)
-            sqlite3_bind_text(statement, 2, prompt, -1, nil)
+            if prompt == ""{
+                sqlite3_bind_text(statement, 2, "你是一个非常优秀的助手，能够帮我解答任何问题！", -1, nil)
+            }
             if sqlite3_step(statement) != SQLITE_DONE {
                 let errorMessage = String(cString: sqlite3_errmsg(db))
                 print("Error: \(errorMessage)")
@@ -147,9 +161,9 @@ class ChatViewModel: ObservableObject {
                     return 0
                 }
             }
-            sqlite3_finalize(stmt)
-            sqlite3_finalize(statement)
-            sqlite3_close(db)
+           
+//            sqlite3_finalize(statement)
+//            sqlite3_close(db)
         }
         return 0
     }

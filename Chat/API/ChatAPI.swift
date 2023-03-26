@@ -26,12 +26,11 @@ class ChatAPI: @unchecked Sendable {
     
     private func createMessages(from newMessage: String) -> [ChatMessage] {
         var messages = [systemMessage] + historyMessages + [ChatMessage(role: .user, message: newMessage, isReceived: false)]
-        print(messages.contentCount)
-        if messages.contentCount > (1000 * 4) {
-            _ = historyMessages.dropFirst()
-            print("删除一些数据")
-            messages = createMessages(from: newMessage)
-        }
+        print("消息总数：",messages.contentCount)
+//        if messages.contentCount > 25 {
+//            _ = historyMessages.dropFirst()
+//            messages = createMessages(from: newMessage)
+//        }
         return messages
     }
     
@@ -55,6 +54,7 @@ class ChatAPI: @unchecked Sendable {
         guard let httpResponse = response as? HTTPURLResponse else {
             throw ChatError.request(message: "Invalid response")
         }
+        print(httpResponse)
         guard 200...299 ~= httpResponse.statusCode else {
             var errorText = ""
             for try await line in result.lines {

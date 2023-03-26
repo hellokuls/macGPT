@@ -27,29 +27,22 @@ struct ChatView: View {
                             tag: sessionInfo.name,
                             selection: $select)
                         {
+                            
                             Text(sessionInfo.name)
                                 .frame(height: 20)
                                 .padding(1)
+                            
                             if select == sessionInfo.name && self.sessionsModel.sessionInfoList.count > 1 {
                                 Spacer()
                                 Button(action: {
-                                    print(sessionsModel.sessionInfoList.count)
-                                        DispatchQueue.main.async {
-                                            self.sessionsModel.chatViewModels[sessionInfo.id]?.deleteSessionInfo(sessionId: sessionInfo.id)
-                                            self.sessionsModel.chatViewModels.removeValue(forKey: sessionInfo.id)
-                                            if select == sessionsModel.sessionInfoList[self.sessionsModel.sessionInfoList.count - 1].name {
-                                                
-                                                self.sessionsModel.sessionInfoList.removeAll(where: {$0.id == sessionInfo.id})
-                                                select = sessionsModel.sessionInfoList[self.sessionsModel.sessionInfoList.count - 1].name
-                                                
-                                            }else if(select == sessionsModel.sessionInfoList[0].name){
-                                                self.sessionsModel.sessionInfoList.removeAll(where: {$0.id == sessionInfo.id})
-                                                select = sessionsModel.sessionInfoList[0].name
-                                            }else{
-                                                self.sessionsModel.sessionInfoList.removeAll(where: {$0.id == sessionInfo.id})
-                                            }
-                                            print(self.sessionsModel.sessionInfoList.count)
-                                        }
+                                DispatchQueue.main.async {
+                                    withAnimation {
+                                        self.sessionsModel.chatViewModels[sessionInfo.id]?.deleteSessionInfo(sessionId: sessionInfo.id)
+                                        self.sessionsModel.chatViewModels.removeValue(forKey: sessionInfo.id)
+                                        self.sessionsModel.sessionInfoList.removeAll(where: {$0.id == sessionInfo.id})
+                                        select = nil
+                                    }
+                                }
                                 }) {
                                     Image(systemName: "trash")
                                 }.buttonStyle(BorderlessButtonStyle())
@@ -58,7 +51,6 @@ struct ChatView: View {
                     }
                     Spacer()
                 }.listStyle(SidebarListStyle()).onDeleteCommand(perform: bindToast)
-                
                 
                 VStack {
                     Button(action: {
@@ -91,8 +83,10 @@ struct ChatView: View {
                                    showToast = true
                                 }else{
                                     sessionsModel.sessionInfoList.append(SessionDetail(id: id, name: textField1.stringValue))
+                                    sessionsModel.chatViewModels[id] = ChatViewModel(sessionId: id)
                                     showAddSession = false
                                     select = sessionsModel.sessionInfoList[sessionsModel.sessionInfoList.count - 1].name
+                                    
                                 }
                                
                             }
@@ -119,7 +113,6 @@ struct ChatView: View {
                             .foregroundColor(.white)
                             .padding()
                     }
-                    Text("Version 1.0.2")
                 }.padding()
                 
                     

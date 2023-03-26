@@ -85,6 +85,7 @@ class ChatSessionModel: ObservableObject {
             while sqlite3_step(statement) == SQLITE_ROW {
                 let id = sqlite3_column_int(statement, 0)
                 let name = String(cString: sqlite3_column_text(statement, 1))
+                _ = String(cString: sqlite3_column_text(statement, 2))
                 sessionInfoList.append(SessionDetail(id: id, name: name))
             }
             sqlite3_finalize(statement)
@@ -125,10 +126,6 @@ class ChatSessionModel: ObservableObject {
     func cacheAPIKey(apiKey: String) {
         _ = insertAPIKey(keyname: apiKey)
     }
-    
-    
-    
-    
 }
 
 

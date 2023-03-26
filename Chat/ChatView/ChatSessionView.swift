@@ -7,6 +7,7 @@ struct ChatSessionView: View {
     @State private var bindings: Set<AnyCancellable> = []
     public var sessionId: Int32
     @ObservedObject var viewModel: ChatViewModel
+    
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
             VStack(alignment: .trailing) {
