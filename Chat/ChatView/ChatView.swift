@@ -54,59 +54,61 @@ struct ChatView: View {
                 
                 VStack {
                     Button(action: {
-                        guard let mainWindow = NSApplication.shared.mainWindow else {
-                            return
-                        }
-                        let alert = NSAlert()
-                        alert.messageText = "新增会话"
-                        alert.informativeText = "请输入会话名称"
-                        alert.addButton(withTitle: "OK")
-                        alert.addButton(withTitle: "Cancel")
-                        let contentView = NSView(frame: NSRect(x: 0, y: 0, width: 200, height: 150))
+                        DispatchQueue.main.async {
+                            guard let mainWindow = NSApplication.shared.mainWindow else {
+                                return
+                            }
+                            let alert = NSAlert()
+                            alert.messageText = "新增会话"
+                            alert.informativeText = "请输入会话名称"
+                            alert.addButton(withTitle: "OK")
+                            alert.addButton(withTitle: "Cancel")
+                            let contentView = NSView(frame: NSRect(x: 0, y: 0, width: 200, height: 150))
 
-                        let textField1 = NSTextField(frame: NSRect(x: 0, y: 120, width: 200, height: 25))
-                        textField1.placeholderString = "会话名称"
-                        textField1.lineBreakMode = .byClipping
-                        contentView.addSubview(textField1)
-                        
-                        let textField2 = NSTextField(frame: NSRect(x: 0, y: 0, width: 200, height: 100))
-                        textField2.placeholderString = "高阶玩法：你可以给chatGPT设定一个角色"
-                        contentView.addSubview(textField2)
-                        
-                        alert.accessoryView = contentView
-                        alert.beginSheetModal(for: mainWindow){ (response) in
-                            if response == .alertFirstButtonReturn {
-                                // 在这里执行创建会话的操作
-                                let id = viewModel.insertSessionInfo(name: textField1.stringValue,prompt: textField2.stringValue)
-                                if id == 0 {
-                                   self.errMsg = "添加失败"
-                                   showToast = true
-                                }else{
-                                    sessionsModel.sessionInfoList.append(SessionDetail(id: id, name: textField1.stringValue))
-                                    sessionsModel.chatViewModels[id] = ChatViewModel(sessionId: id)
-                                    showAddSession = false
-                                    select = sessionsModel.sessionInfoList[sessionsModel.sessionInfoList.count - 1].name
-                                    
+                            let textField1 = NSTextField(frame: NSRect(x: 0, y: 120, width: 200, height: 25))
+                            textField1.placeholderString = "会话名称"
+                            textField1.lineBreakMode = .byClipping
+                            contentView.addSubview(textField1)
+                            
+                            let textField2 = NSTextField(frame: NSRect(x: 0, y: 0, width: 200, height: 100))
+                            textField2.placeholderString = "高阶玩法：你可以给chatGPT设定一个角色"
+                            contentView.addSubview(textField2)
+                            
+                            alert.accessoryView = contentView
+                            alert.beginSheetModal(for: mainWindow){ (response) in
+                                if response == .alertFirstButtonReturn {
+                                    // 在这里执行创建会话的操作
+                                    let id = viewModel.insertSessionInfo(name: textField1.stringValue,prompt: textField2.stringValue)
+                                    if id == 0 {
+                                       self.errMsg = "添加失败"
+                                       showToast = true
+                                    }else{
+                                        sessionsModel.sessionInfoList.append(SessionDetail(id: id, name: textField1.stringValue))
+                                        sessionsModel.chatViewModels[id] = ChatViewModel(sessionId: id)
+                                        showAddSession = false
+                                        select = sessionsModel.sessionInfoList[sessionsModel.sessionInfoList.count - 1].name
+                                        
+                                    }
+                                   
                                 }
-                               
                             }
                         }
-                        
                     }) {
                         Text("添加会话")
                             .foregroundColor(.white)
                             .padding()
                     }
                     Button(action: {
-                        let alert = NSAlert()
-                        guard let mainWindow = NSApplication.shared.mainWindow else {
-                            return
-                        }
-                        alert.messageText = "检查更新"
-                        alert.informativeText = "请前往https://github.com/hellokuls/macGPT/releases下载最新版"
-                        alert.addButton(withTitle: "OK")
-                        alert.beginSheetModal(for: mainWindow){ (response) in
-                            
+                        DispatchQueue.main.async {
+                            let alert = NSAlert()
+                            guard let mainWindow = NSApplication.shared.mainWindow else {
+                                return
+                            }
+                            alert.messageText = "检查更新"
+                            alert.informativeText = "请前往https://github.com/hellokuls/macGPT/releases下载最新版"
+                            alert.addButton(withTitle: "OK")
+                            alert.beginSheetModal(for: mainWindow){ (response) in
+                            }
                         }
                     }) {
                         Text("检查更新")
@@ -119,38 +121,37 @@ struct ChatView: View {
             }
             
         }.toolbar{
-            
             Button(action: {
-                let alert = NSAlert()
-                guard let mainWindow = NSApplication.shared.mainWindow else {
-                    return
-                }
-                alert.messageText = "系统设置"
-                alert.addButton(withTitle: "确定")
-                alert.addButton(withTitle: "取消")
-                
-                let accessoryView = NSView(frame: NSRect(x: 0, y: 0, width: 200, height: 100))
-                
-                let textField = NSSecureTextField(frame: NSRect(x: 0, y: 40, width: 200, height: 24))
-                textField.lineBreakMode = .byClipping
-                textField.placeholderString = "请输入你的api_key"
-                accessoryView.addSubview(textField)
+                DispatchQueue.main.async {
+                    let alert = NSAlert()
+                    guard let mainWindow = NSApplication.shared.mainWindow else {
+                        return
+                    }
+                    alert.messageText = "系统设置"
+                    alert.addButton(withTitle: "确定")
+                    alert.addButton(withTitle: "取消")
+                    
+                    let accessoryView = NSView(frame: NSRect(x: 0, y: 0, width: 200, height: 100))
+                    
+                    let textField = NSSecureTextField(frame: NSRect(x: 0, y: 40, width: 200, height: 24))
+                    textField.lineBreakMode = .byClipping
+                    textField.placeholderString = "请输入你的api_key"
+                    accessoryView.addSubview(textField)
 
-                let radioButton = NSButton(radioButtonWithTitle: "选项 1", target: nil, action: nil)
-                radioButton.frame = NSRect(x: 0, y: 0, width: 200, height: 20)
-                accessoryView.addSubview(radioButton)
-            
-                alert.accessoryView = accessoryView
-                alert.beginSheetModal(for: mainWindow){ (response) in
-                    if response == .alertFirstButtonReturn {
-                        // todo
-                        if radioButton.state == .on {
-                            // 选项 1 被选中
+                    let radioButton = NSButton(radioButtonWithTitle: "选项 1", target: nil, action: nil)
+                    radioButton.frame = NSRect(x: 0, y: 0, width: 200, height: 20)
+                    accessoryView.addSubview(radioButton)
+                
+                    alert.accessoryView = accessoryView
+                    alert.beginSheetModal(for: mainWindow){ (response) in
+                        if response == .alertFirstButtonReturn {
+                            // todo
+                            if radioButton.state == .on {
+                               
+                            }
                         }
                     }
                 }
-            
-                
             })
             {
                 Image(systemName: "gear")
@@ -185,7 +186,9 @@ struct ChatView: View {
             AlertToast(displayMode: .hud, type: .error(Color.red), title: self.errMsg)}
         .onReceive(NotificationCenter.default.publisher(for: Notification.Name("MyNotification"))){
             _ in
-           bindToast()
+            DispatchQueue.main.async {
+                bindToast()
+            }
         }
     }
     

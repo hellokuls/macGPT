@@ -6,3 +6,8 @@
 //
 
 import Foundation
+import CoreData
+
+private func createPersistentContainer() {
+    let container = NSPersistentContainer(name: "Model")
+}

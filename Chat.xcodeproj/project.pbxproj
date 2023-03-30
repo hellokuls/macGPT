@@ -121,8 +121,8 @@
 				52849A2B29B82FF600AF4117 /* Model */,
 				52849A2A29B82FEB00AF4117 /* ViewModel */,
 				5236D33329B5AAD400F083BA /* Assets.xcassets */,
-				52849A3829B8458900AF4117 /* Color.xcassets */,
 				5236D33829B5AAD400F083BA /* Chat.entitlements */,
+				52849A3829B8458900AF4117 /* Color.xcassets */,
 				5236D33529B5AAD400F083BA /* Preview Content */,
 			);
 			path = Chat;
@@ -482,7 +482,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1.0.3;
+				CURRENT_PROJECT_VERSION = 1.0.6;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Chat/Preview Content\"";
 				DEVELOPMENT_TEAM = 898H887VDC;
@@ -500,8 +500,8 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.4;
-				MARKETING_VERSION = 1.0.3;
-				PRODUCT_BUNDLE_IDENTIFIER = com.lessimore.gpt;
+				MARKETING_VERSION = 1.0.6;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kuls.gpt;
 				PRODUCT_NAME = MacChatGPT;
 				SUPPORTED_PLATFORMS = macosx;
 				SUPPORTS_MACCATALYST = NO;
@@ -520,7 +520,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 1.0.3;
+				CURRENT_PROJECT_VERSION = 1.0.6;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"Chat/Preview Content\"";
 				DEVELOPMENT_TEAM = 898H887VDC;
@@ -538,8 +538,8 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 12.4;
-				MARKETING_VERSION = 1.0.3;
-				PRODUCT_BUNDLE_IDENTIFIER = com.lessimore.gpt;
+				MARKETING_VERSION = 1.0.6;
+				PRODUCT_BUNDLE_IDENTIFIER = com.kuls.gpt;
 				PRODUCT_NAME = MacChatGPT;
 				SUPPORTED_PLATFORMS = macosx;
 				SUPPORTS_MACCATALYST = NO;

@@ -33,6 +33,11 @@ class ChatSessionModel: ObservableObject {
             let createSessionDetailTableSql = "CREATE TABLE IF NOT EXISTS sessiondetail (id INTEGER PRIMARY KEY AUTOINCREMENT,message TEXT,sessionInfoId INTEGER, parentId INTEGER, isReceived INTEGER);"
 
             var createTableStatement: OpaquePointer?
+            
+            defer{
+                sqlite3_finalize(createTableStatement)
+                sqlite3_close(db)
+            }
 
             if sqlite3_prepare_v2(db, createApiKeysTableSql, -1, &createTableStatement, nil) == SQLITE_OK {
                 if sqlite3_step(createTableStatement) == SQLITE_DONE {
@@ -44,8 +49,6 @@ class ChatSessionModel: ObservableObject {
                 print("CREATE TABLE statement could not be prepared.")
             }
 
-            sqlite3_finalize(createTableStatement)
-
             if sqlite3_prepare_v2(db, createSessionInfoTableSql, -1, &createTableStatement, nil) == SQLITE_OK {
                 if sqlite3_step(createTableStatement) == SQLITE_DONE {
                     print("sessioninfo table created.")
@@ -55,8 +58,6 @@ class ChatSessionModel: ObservableObject {
             } else {
                 print("CREATE TABLE statement could not be prepared.")
             }
-
-            sqlite3_finalize(createTableStatement)
 
             if sqlite3_prepare_v2(db, createSessionDetailTableSql, -1, &createTableStatement, nil) == SQLITE_OK {
                 if sqlite3_step(createTableStatement) == SQLITE_DONE {
@@ -68,8 +69,7 @@ class ChatSessionModel: ObservableObject {
                 print("CREATE TABLE statement could not be prepared.")
             }
 
-            sqlite3_finalize(createTableStatement)
-            sqlite3_close(db)
+           
         }
     }
     
@@ -78,6 +78,11 @@ class ChatSessionModel: ObservableObject {
     func selectSessionInfo(){
         if sqlite3_open("gpt.db", &db) == SQLITE_OK {
             var statement: OpaquePointer?
+            
+            defer{
+                sqlite3_finalize(statement)
+                sqlite3_close(db)
+            }
             let sql1 = "SELECT * FROM sessioninfo"
             if sqlite3_prepare_v2(db, sql1, -1, &statement, nil) != SQLITE_OK {
                 print("Error preparing statement")
@@ -85,11 +90,8 @@ class ChatSessionModel: ObservableObject {
             while sqlite3_step(statement) == SQLITE_ROW {
                 let id = sqlite3_column_int(statement, 0)
                 let name = String(cString: sqlite3_column_text(statement, 1))
-                _ = String(cString: sqlite3_column_text(statement, 2))
                 sessionInfoList.append(SessionDetail(id: id, name: name))
             }
-            sqlite3_finalize(statement)
-            sqlite3_close(db)
         }
     }
     
@@ -97,6 +99,11 @@ class ChatSessionModel: ObservableObject {
     func insertAPIKey(keyname : String) -> Int32{
         if sqlite3_open("gpt.db", &db) == SQLITE_OK {
             var statement: OpaquePointer?
+            
+            defer{
+                sqlite3_finalize(statement)
+                sqlite3_close(db)
+            }
             let sql1 = "INSERT INTO apikeys (keyname) VALUES (?)"
             if sqlite3_prepare_v2(db, sql1, -1, &statement, nil) != SQLITE_OK {
                 print("Error preparing statement")
@@ -108,16 +115,11 @@ class ChatSessionModel: ObservableObject {
                 print("Error: \(errorMessage)")
             }else{
                 if let rowId = Optional(sqlite3_last_insert_rowid(db)) {
-                    // 在这里使用 rowId，它是一个非可选的 Int32 值
-                    print("插入成功")
                     return Int32(rowId)
                 } else {
-                    // 如果 rowId 是 nil，则表示获取最后插入的行的 ID 失败
                     return 0
                 }
             }
-            sqlite3_finalize(statement)
-            sqlite3_close(db)
         }
         
         return 0

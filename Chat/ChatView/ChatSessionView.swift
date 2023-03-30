@@ -19,8 +19,10 @@ struct ChatSessionView: View {
                                 .environmentObject(viewModel)
                         }
                         .onChange(of: viewModel.lastMessage) { _ in
-                            withAnimation {
-                                proxy.scrollTo(viewModel.lastMessageID, anchor: .bottom)
+                            DispatchQueue.main.async {
+                                withAnimation {
+                                    proxy.scrollTo(viewModel.lastMessageID, anchor: .bottom)
+                                }
                             }
                         }
                     }.padding()

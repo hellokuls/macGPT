@@ -50,6 +50,14 @@ class ChatViewModel: ObservableObject {
         Task {
             do {
                 let prompt = selectPrompt(sessionId: sessionId)
+                var totalLength = 0
+                
+                for msg in messages{
+                    totalLength += msg.message.count
+                }
+                if totalLength > 3500{
+                    messages.removeFirst(3)
+                }
                 let api = ChatAPI(apiKey: apikey, systemPrompt: prompt, messages: self.messages)
                 let stream = try await api.sendMessage(question)
                 let chat = await ChatMessage(role: .assistant, message: messageFeed.message, isReceived: true)
@@ -68,7 +76,6 @@ class ChatViewModel: ObservableObject {
                         self.lastMessage = newMessage
                     }
                 }
-                // 写入数据库
                 await insertSessionDetail(message: messageFeed.message, sessionId: sessionId, isReceived: 1)
                 await messageFeed.reset()
                 DispatchQueue.main.async {
@@ -150,6 +157,8 @@ class ChatViewModel: ObservableObject {
             sqlite3_bind_text(statement, 1, name, -1, nil)
             if prompt == ""{
                 sqlite3_bind_text(statement, 2, "你是一个非常优秀的助手，能够帮我解答任何问题！", -1, nil)
+            }else{
+                sqlite3_bind_text(statement, 2, prompt, -1, nil)
             }
             if sqlite3_step(statement) != SQLITE_DONE {
                 let errorMessage = String(cString: sqlite3_errmsg(db))
@@ -161,9 +170,6 @@ class ChatViewModel: ObservableObject {
                     return 0
                 }
             }
-           
-//            sqlite3_finalize(statement)
-//            sqlite3_close(db)
         }
         return 0
     }
@@ -174,16 +180,23 @@ class ChatViewModel: ObservableObject {
         if sqlite3_open("gpt.db", &db) == SQLITE_OK {
             var parentId: Int32 = 0
             var statement: OpaquePointer?
+            var statement1: OpaquePointer?
+            defer{
+                sqlite3_finalize(statement)
+                sqlite3_finalize(statement1)
+                sqlite3_close(db)
+            }
             let sql1 = "INSERT INTO sessiondetail (message, sessionInfoId, parentId, isReceived) VALUES (?, ?, ?, ?)"
+            let sql2 = "SELECT MAX(id) FROM sessiondetail where sessionInfoId = ?;"
+            
             if sqlite3_prepare_v2(db, sql1, -1, &statement, nil) != SQLITE_OK {
                 print("Error preparing statement")
-
             }
-            var statement1: OpaquePointer?
-            let sql2 = "SELECT MAX(id) FROM sessiondetail where sessionInfoId = ?;"
+            
             if sqlite3_prepare_v2(db, sql2, -1, &statement1, nil) == SQLITE_OK {
                 sqlite3_bind_int(statement1, 1, sessionId)
             }
+            
             if sqlite3_step(statement1) == SQLITE_ROW {
                 parentId = sqlite3_column_int(statement1, 0)
             }
@@ -199,9 +212,8 @@ class ChatViewModel: ObservableObject {
             }else{
                 print("插入成功")
             }
-            sqlite3_finalize(statement)
-            sqlite3_finalize(statement1)
-            sqlite3_close(db)
+            
+
         }
     }
     
@@ -209,6 +221,11 @@ class ChatViewModel: ObservableObject {
     func selectSessionDetail(sessionId: Int32){
         if sqlite3_open("gpt.db", &db) == SQLITE_OK {
             var statement: OpaquePointer?
+            defer{
+                sqlite3_finalize(statement)
+                sqlite3_close(db)
+            }
+            
             let sql1 = "SELECT * FROM (SELECT * FROM sessiondetail where sessionInfoId = ? ORDER BY parentId DESC LIMIT 10) sub ORDER BY parentId ASC;"
             if sqlite3_prepare_v2(db, sql1, -1, &statement, nil) != SQLITE_OK {
                 print("Error preparing statement")
@@ -225,8 +242,7 @@ class ChatViewModel: ObservableObject {
                 let chat = ChatMessage(role: .user, message: message, isReceived: isReceived==1 ? true : false)
                 messages.append(chat)
             }
-            sqlite3_finalize(statement)
-            sqlite3_close(db)
+           
         }
     }
     
@@ -235,14 +251,18 @@ class ChatViewModel: ObservableObject {
         if sqlite3_open("gpt.db", &db) == SQLITE_OK {
             var deleteStatement1: OpaquePointer?
             var deleteStatement2: OpaquePointer?
+            
+            defer{
+                sqlite3_finalize(deleteStatement1)
+                sqlite3_finalize(deleteStatement2)
+                sqlite3_close(db)
+            }
 
             let deleteQuery1 = "DELETE FROM sessioninfo WHERE id = ?"
             let deleteQuery2 = "DELETE FROM sessiondetail WHERE sessionInfoId = ?"
             
             if sqlite3_prepare_v2(db, deleteQuery1, -1, &deleteStatement1, nil) == SQLITE_OK
                   && sqlite3_prepare_v2(db, deleteQuery2, -1, &deleteStatement2, nil) == SQLITE_OK {
-
-                // 绑定参数
                 sqlite3_bind_int(deleteStatement1, 1, Int32(sessionId))
                 sqlite3_bind_int(deleteStatement2, 1, Int32(sessionId))
 
@@ -260,11 +280,6 @@ class ChatViewModel: ObservableObject {
             } else {
                 print("Error preparing delete statement.")
             }
-
-            sqlite3_finalize(deleteStatement1)
-            sqlite3_finalize(deleteStatement2)
-            sqlite3_close(db)
-
         }
         
     }
@@ -273,6 +288,11 @@ class ChatViewModel: ObservableObject {
     func selectAPIKey() -> String{
         if sqlite3_open("gpt.db", &db) == SQLITE_OK {
             var statement: OpaquePointer?
+            
+            defer{
+                sqlite3_finalize(statement)
+                sqlite3_close(db)
+            }
             let sql1 = "SELECT * FROM apikeys"
             if sqlite3_prepare_v2(db, sql1, -1, &statement, nil) != SQLITE_OK {
                 print("Error preparing statement")
@@ -282,8 +302,7 @@ class ChatViewModel: ObservableObject {
                 let keyname = String(cString: sqlite3_column_text(statement, 1))
                 self.apiKey = keyname
             }
-            sqlite3_finalize(statement)
-            sqlite3_close(db)
+           
         }
         return self.apiKey
     }
@@ -292,6 +311,11 @@ class ChatViewModel: ObservableObject {
     func selectPrompt(sessionId: Int32) -> String{
         if sqlite3_open("gpt.db", &db) == SQLITE_OK {
             var statement: OpaquePointer?
+            
+            defer{
+                sqlite3_finalize(statement)
+                sqlite3_close(db)
+            }
             let sql1 = "SELECT prompt FROM sessioninfo where id = ?"
             if sqlite3_prepare_v2(db, sql1, -1, &statement, nil) != SQLITE_OK {
                 print("Error preparing statement")
@@ -301,8 +325,7 @@ class ChatViewModel: ObservableObject {
                 let prompt = String(cString: sqlite3_column_text(statement, 0))
                 self.prompt = prompt
             }
-            sqlite3_finalize(statement)
-            sqlite3_close(db)
+           
         }
         return self.prompt
     }

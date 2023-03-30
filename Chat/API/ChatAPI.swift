@@ -19,18 +19,13 @@ class ChatAPI: @unchecked Sendable {
     
     func sendMessage(_ message: String, to endPoint: Endpoint = .chatCompletions) async throws -> AsyncThrowingStream<String, Error> {
         appendMessage(ChatMessage(role: .user, message: message, isReceived: false))
-        let body = ChatRequest(messages: createMessages(from: message))
+        let body = ChatRequest(messages: createMessages())
         let request = prepareRequest(endPoint, body: body)
         return try await makeRequest(request: request)
     }
     
-    private func createMessages(from newMessage: String) -> [ChatMessage] {
-        var messages = [systemMessage] + historyMessages + [ChatMessage(role: .user, message: newMessage, isReceived: false)]
-        print("消息总数：",messages.contentCount)
-//        if messages.contentCount > 25 {
-//            _ = historyMessages.dropFirst()
-//            messages = createMessages(from: newMessage)
-//        }
+     func createMessages() -> [ChatMessage] {
+        let messages = [systemMessage] + self.historyMessages
         return messages
     }
     
@@ -41,7 +36,6 @@ class ChatAPI: @unchecked Sendable {
         request.httpMethod = endpoint.method
         request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        print(apiKey)
         let encoder = JSONEncoder()
         if let encoded = try? encoder.encode(body) {
             request.httpBody = encoded
@@ -54,7 +48,6 @@ class ChatAPI: @unchecked Sendable {
         guard let httpResponse = response as? HTTPURLResponse else {
             throw ChatError.request(message: "Invalid response")
         }
-        print(httpResponse)
         guard 200...299 ~= httpResponse.statusCode else {
             var errorText = ""
             for try await line in result.lines {
@@ -90,7 +83,7 @@ class ChatAPI: @unchecked Sendable {
     }
     
     private func appendMessage(_ message:ChatMessage) {
-        historyMessages.append(message)
+        self.historyMessages.append(message)
     }
 }
 
